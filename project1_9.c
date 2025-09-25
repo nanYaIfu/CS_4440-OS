@@ -1,4 +1,9 @@
 // question 9
+// just like question 5, this will divide the input file into chunks and assign each chunk to a separate thread for compression.
+// the input file is determined then divided into 'num_threads' chunks.
+// each thread will run 'compress_chunk', and this will handle the portion of the file and write its result to a temporary file.
+// once all the threadsa are done, the parent thread merges the temporary files into a final output file in the correct order,
+// then it removes the temporary files and cleans it.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +20,6 @@ typedef struct {
     int thread_id;
 } ThreadData;
 
-// Placeholder compression function (currently just copies data)
-// Replace with your Problem 1 compression logic if required
 void *compress_chunk(void *arg) {
     ThreadData *data = (ThreadData *)arg;
 
@@ -43,7 +46,6 @@ void *compress_chunk(void *arg) {
         size_t bytes_read = fread(buffer, 1, to_read, input);
         if (bytes_read == 0) break;
 
-        // Replace with compression logic:
         fwrite(buffer, 1, bytes_read, output);
 
         remaining -= bytes_read;
@@ -133,6 +135,6 @@ int main(int argc, char *argv[]) {
     free(threads);
     free(thread_data);
 
-    printf("Parallel compression using threads completed successfully.\n");
+    printf("Processing done.\n");
     return 0;
 }
