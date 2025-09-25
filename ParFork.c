@@ -1,9 +1,9 @@
 // Question 5
-// the input file is divided into 'num_processes' chunks of roughly equal size
-// each chunk, the parent forks a child process
-// the parent waits for all the children to finish then combines all the temporary files into a single output
-// the parent will divide the work, manage the children, and merge the results
-// the child will compress the assigned file chunk into a temporary file
+// the input file is divided into 'num_processes' chunks of roughly equal size.
+// each chunk, the parent forks a child process.
+// the parent waits for all the children to finish then combines all the temporary files into a single output.
+// the parent will divide the work, manage the children, and merge the results.
+// the child will compress the assigned file chunk into a temporary file.
 
 
 #include <stdio.h>
