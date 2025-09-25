@@ -1,4 +1,9 @@
 // Question 3
+// this program runs the external compression utility that accepts two commmand-line arguments
+// it creates a child process using fork()
+// the child process replaces the process image with MyCompress using execl() and is then passed to the source and destination file
+// the parent process will wait 'wait()' for the child to finish and report if failed or succeeded
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
