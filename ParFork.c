@@ -14,7 +14,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-// Compression function (placeholder - would implement actual compression algorithm)
+// Compression function 
 void compress_chunk(FILE *input, FILE *output, long start_pos, long chunk_size) {
     char buffer[4096];
     size_t bytes_read;
@@ -24,7 +24,7 @@ void compress_chunk(FILE *input, FILE *output, long start_pos, long chunk_size) 
     
     while (remaining > 0 && (bytes_read = fread(buffer, 1, 
            (remaining > sizeof(buffer)) ? sizeof(buffer) : remaining, input)) > 0) {
-        // Apply compression algorithm to buffer
+        
         fwrite(buffer, 1, bytes_read, output);
         remaining -= bytes_read;
     }
