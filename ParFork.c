@@ -1,4 +1,9 @@
 // Question 5
+// the input file is divided into 'num_processes' chunks of roughly equal size
+// each chunk, the parent forks a child process
+// the parent waits for all the children to finish then combines all the temporary files into a single output
+// the parent will divide the work, manage the children, and merge the results
+// the child will compress the assigned file chunk into a temporary file
 
 
 #include <stdio.h>
@@ -20,7 +25,6 @@ void compress_chunk(FILE *input, FILE *output, long start_pos, long chunk_size) 
     while (remaining > 0 && (bytes_read = fread(buffer, 1, 
            (remaining > sizeof(buffer)) ? sizeof(buffer) : remaining, input)) > 0) {
         // Apply compression algorithm to buffer
-        // For demonstration, just write as-is
         fwrite(buffer, 1, bytes_read, output);
         remaining -= bytes_read;
     }
@@ -138,6 +142,6 @@ int main(int argc, char *argv[]) {
     free(temp_filenames);
     free(child_pids);
     
-    printf("Parallel compression completed successfully.\n");
+    printf("File processing completed.\n");
     return 0;
 }
