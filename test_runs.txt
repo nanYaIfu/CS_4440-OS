@@ -4,10 +4,14 @@ TYPESCRIPT: Test Run for All Programs
 
 $ gcc MyCompress.c -o MyCompress
 $ gcc MyDecompress.c -o MyDecompress
+$ gcc ForkCompress.c -o ForkCompress
 $ gcc PipeCompress.c -o PipeCompress
+$ gcc ParFork.c -o ParFork
 $ gcc MiniShell.c -o MiniShell
 $ gcc MoreShell.c -o MoreShell
 $ gcc DupShell.c -o DupShell
+$ gcc ParThread.c -o ParThread -lpthread
+
 
 # --------------------------------------------------
 # Prepare small input files
