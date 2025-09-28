@@ -1,3 +1,4 @@
+// Ifunanya Okafor and Andy Lim || Course: 4440-03
 // Question 5
 // the input file is divided into 'num_processes' chunks of roughly equal size.
 // each chunk, the parent forks a child process.
