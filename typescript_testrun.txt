@@ -2,6 +2,10 @@
 TYPESCRIPT: Test Run for All Programs
 =====================================
 
+$ gcc ForkCompress.c -o ForkCompress
+$ gcc ParFork.c -o ParFork
+$ gcc project1_9.c -o project1_9 -lpthread
+
 # ==================================================
 # Question 3 — Fork + Exec Compression
 # ==================================================
