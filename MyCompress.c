@@ -4,7 +4,7 @@
 // It compresses strings of only 1s or 0s that have a length greater than or equal to 16 
 // as +n+ or -n- respectively, where n = the number of 1s/0s in the string. If the string has a length
 // less than 16 or isn't a 0/1, it is left as is and flushes. The program achieves this using
-// system calls (read, write, open, close) for file manipulation.
+// system calls (read, write, open, close, fsync) for file manipulation.
 
 // Compile Build: gcc MyCompress.c -o MyCompress
 // Run: ./MyCompress "source_filename.txt" "destination_filename.txt" 
