@@ -1,5 +1,4 @@
 # Prj1README
-===========
 Table of Contents
 ------------
 1) MyCompress.c
