@@ -1,3 +1,4 @@
+// Ifunanya Okafor and Andy Lim || Course: 4440-03
 // Question 3
 // this program runs the external compression utility that accepts two commmand-line arguments.
 // it creates a child process using fork().
