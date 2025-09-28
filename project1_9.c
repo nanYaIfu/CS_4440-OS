@@ -1,3 +1,4 @@
+// Ifunanya Okafor and Andy Lim || Course: 4440-03
 // question 9
 // just like question 5, this will divide the input file into chunks and assign each chunk to a separate thread for compression.
 // the input file is determined then divided into 'num_threads' chunks.
