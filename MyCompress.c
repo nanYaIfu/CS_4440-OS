@@ -1,109 +1,94 @@
+// Names: Ifunanya Okafor and Andy Lim || Date: 19 Sept 2025 || Course: CS 4440-03
+// Description: The purpose of this program is to read and make a compressed copy of
+// a given text file containing only strings of 0s and 1s that are separated by new lines/spaces.
+// It compresses strings of only 1s or 0s that have a length greater than or equal to 16 
+// as +n+ or -n- respectively, where n = the number of 1s/0s in the string. If the string has a length
+// less than 16 or isn't a 0/1, it is left as is and flushes. The program achieves this using
+// system calls (read, write, open, close) for file manipulation.
 
-#include <unistd.h>  
-#include <fcntl.h>    
-#include <stdlib.h>   
-#include <stddef.h>   
+// Compile Build: gcc MyCompress.c -o MyCompress
+// Run: ./MyCompress "source_filename.txt" "destination_filename.txt" 
 
-#define RBUFSZ 8192
-#define RUN_THRESHOLD 16
+// Libraries used
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-static void die(void) {
-    const char msg[] = "error\n";
-    write(STDERR_FILENO, msg, sizeof msg - 1);
-    _exit(EXIT_FAILURE);
-}
+// This function exits program in case of error
+static void die(const char *m){ perror(m); exit(1); }
 
-static void write_all(int fd, const void *buf, size_t len) {
-    const char *p = (const char *)buf;
-    while (len) {
-        ssize_t n = write(fd, p, len);
-        if (n < 0) die();
-        p += (size_t)n;
-        len -= (size_t)n;
+// This function loops write() until all characters are written
+static void write_all(int fd, const void *buf, size_t len){
+    const char *p = (const char*)buf;
+    while(len){
+        ssize_t w = write(fd, p, len);
+        if (w < 0){ if (errno==EINTR) continue; die("write"); }
+        p += (size_t)w; len -= (size_t)w;
     }
 }
 
-
-static int utoa_dec(size_t n, char *out) {
-    char tmp[32];
+// This function writes an unsigned integer
+static void write_uint(int fd, size_t n){
+    char tmp[32]; // enough for n (size_t variable)
     int i = 0;
-    if (n == 0) { out[0] = '0'; return 1; }
-    while (n) { tmp[i++] = (char)('0' + (n % 10)); n /= 10; }
-    for (int j = 0; j < i; ++j) out[j] = tmp[i - 1 - j];
-    return i;
+    if (n == 0) tmp[i++] = '0';
+    while(n){ tmp[i++] = (char)('0' + (n % 10)); n /= 10; }
+    // digits are reversed
+    for (int j = i-1; j >= 0; --j) write_all(fd, &tmp[j], 1);
 }
 
-static void flush_run(int dst_fd, char bit, size_t len) {
-    if (!bit || len == 0) return;
-
-    if (len >= RUN_THRESHOLD) {
-        // NOTE:  +N+ for ones, -N- for zeros
-        char buf[40];
-        int k = 0;
-        buf[k++] = (bit == '1') ? '+' : '-';
-        k += utoa_dec(len, buf + k);
-        buf[k++] = buf[0]; 
-        write_all(dst_fd, buf, (size_t)k);
+// This function flushes compressable strings
+static void flush_run(int out_fd, char bit, size_t run){
+    if (run == 0) return;
+    if (run >= 16){
+        char open = (bit=='1') ? '+' : '-';
+        char close = open;
+        write_all(out_fd, &open, 1);
+        write_uint(out_fd, run);
+        write_all(out_fd, &close, 1);
     } else {
-       
-        for (size_t i = 0; i < len; ++i) write_all(dst_fd, &bit, 1);
+        // write the run one byte at a time
+        for (size_t i=0;i<run;i++) write_all(out_fd, &bit, 1);
     }
 }
 
-static int compress_stream(int src_fd, int dst_fd) {
-    char buf[RBUFSZ];
-    char cur = 0;        
+// This function is for the main compression from one file descriptor to another.
+static int compress_fd(int in_fd, int out_fd){
+    char cur = 0;
     size_t run = 0;
+    for(;;){
+        char c;
+        ssize_t r = read(in_fd, &c, 1);
+        if (r < 0){ if (errno==EINTR) continue; die("read"); }
+        if (r == 0) break; // EOF
 
-    for (;;) {
-        ssize_t n = read(src_fd, buf, sizeof buf);
-        if (n < 0) return -1;
-        if (n == 0) break;
-
-        for (ssize_t i = 0; i < n; ++i) {
-            char c = buf[i];
-
-            if (c == '0' || c == '1') {
-                if (cur == 0) { cur = c; run = 1; }
-                else if (c == cur) { run++; }
-                else {
-                    flush_run(dst_fd, cur, run);
-                    cur = c; run = 1;
-                }
-            } else if (c == ' ' || c == '\n' || c == '\r') {
-              
-                flush_run(dst_fd, cur, run);
-                cur = 0; run = 0;
-                write_all(dst_fd, &c, 1);
-            } else {
-                
-                flush_run(dst_fd, cur, run);
-                cur = 0; run = 0;
-                write_all(dst_fd, &c, 1);
-            }
+        if (c=='0' || c=='1'){
+            if (run==0){ cur=c; run=1; }
+            else if (c==cur){ run++; }
+            else { flush_run(out_fd, cur, run); cur=c; run=1; }
+        } else {
+            flush_run(out_fd, cur, run);
+            cur=0; run=0;
+            write_all(out_fd, &c, 1); // copy delimiter as-is
         }
     }
-
-        flush_run(dst_fd, cur, run);
+    flush_run(out_fd, cur, run);
     return 0;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        const char u[] = "Usage: MyCompress <source_bits.txt> <dest_compressed.txt>\n";
-        write(STDERR_FILENO, u, sizeof u - 1);
-        return 1;
-    }
+// The main function; opens the two files and calls compress_fd(), then closes them
+int main(int argc, char **argv){
+    if (argc!=3){ dprintf(2,"Usage: %s <source> <dest>\n", argv[0]); return 1; }
+    int in_fd  = open(argv[1], O_RDONLY);
+    if (in_fd  < 0) die("open src");
+    int out_fd = open(argv[2], O_CREAT|O_TRUNC|O_RDWR, 0644);
+    if (out_fd < 0) die("open dst");
 
-    int s = open(argv[1], O_RDONLY);
-    if (s < 0) die();
+    int rc = compress_fd(in_fd,out_fd);
+    fsync(out_fd);
 
-    int d = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, 0644);
-    if (d < 0) die();
-
-    if (compress_stream(s, d) < 0) die();
-
-    if (close(s) < 0) die();
-    if (close(d) < 0) die();
-    return 0;
+    close(in_fd); close(out_fd);
+    return rc;
 }
