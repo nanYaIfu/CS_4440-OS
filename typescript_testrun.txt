@@ -2,22 +2,18 @@
 TYPESCRIPT: Test Run for All Programs
 =====================================
 
-$ gcc ForkCompress.c -o ForkCompress
-$ gcc ParFork.c -o ParFork
-$ gcc project1_9.c -o project1_9 -lpthread
-
 # ==================================================
 # Question 3 — Fork + Exec Compression
 # ==================================================
 
-$ gcc Q3ForkCompress.c -o Q3ForkCompress
+$ gcc ForkCompress.c -o ForkCompress
 
 # Error: missing arguments
-$ ./Q3ForkCompress
-Usage: ./Q3ForkCompress <source_file> <dest_file>
+$ ./ForkCompress
+Usage: ./ForkCompress <source_file> <dest_file>
 
 # Error: nonexistent input file
-$ ./Q3ForkCompress nofile.txt out.txt
+$ ./ForkCompress nofile.txt out.txt
 execl failed: No such file or directory
 
 # OK: small input file
@@ -25,7 +21,7 @@ $ cat > small.txt <<'EOF'
 111100001111 0000111100001111
 EOF
 
-$ ./Q3ForkCompress small.txt compressed.txt
+$ ./ForkCompress small.txt compressed.txt
 Compression finished, exit code: 0
 
 $ cat compressed.txt
@@ -36,7 +32,7 @@ $ cat > longruns.txt <<'EOF'
 0000000000000000 11111111111111111111
 EOF
 
-$ ./Q3ForkCompress longruns.txt compressed_long.txt
+$ ./ForkCompress longruns.txt compressed_long.txt
 Compression finished, exit code: 0
 
 $ cat compressed_long.txt
@@ -46,18 +42,18 @@ $ cat compressed_long.txt
 # Question 5 — Multi-process Chunk Compression
 # ==================================================
 
-$ gcc Q5PipeCompress.c -o Q5PipeCompress
+$ gcc ParFork.c -o ParFork
 
 # Error: missing arguments
-$ ./Q5PipeCompress
-Usage: ./Q5PipeCompress <input_file> <output_file> <num_processes>
+$ ./ParkFork
+Usage: ./ParFork<input_file> <output_file> <num_processes>
 
 # Error: invalid number of processes
-$ ./Q5PipeCompress input.txt out.txt 0
+$ ./ParFork input.txt out.txt 0
 Number of processes must be positive
 
 # Error: nonexistent input file
-$ ./Q5PipeCompress nofile.txt out.txt 4
+$ ./ParFork nofile.txt out.txt 4
 Failed to open input file: No such file or directory
 
 # OK: small input file, 2 processes
@@ -65,7 +61,7 @@ $ cat > small.txt <<'EOF'
 111100001111 0000111100001111
 EOF
 
-$ ./Q5PipeCompress small.txt compressed_small.txt 2
+$ ./ParFork small.txt compressed_small.txt 2
 File processing completed.
 
 $ cat compressed_small.txt
@@ -76,7 +72,7 @@ $ cat > longruns.txt <<'EOF'
 0000000000000000 11111111111111111111
 EOF
 
-$ ./Q5PipeCompress longruns.txt compressed_long.txt 4
+$ ./ParFork longruns.txt compressed_long.txt 4
 File processing completed.
 
 $ cat compressed_long.txt
@@ -86,18 +82,18 @@ $ cat compressed_long.txt
 # Question 9 — Multi-threaded Chunk Compression
 # ==================================================
 
-$ gcc Q9ThreadCompress.c -o Q9ThreadCompress -lpthread
+$ gcc project1_9.c -o project1_9 -lpthread
 
 # Error: missing arguments
-$ ./Q9ThreadCompress
-Usage: ./Q9ThreadCompress <input_file> <output_file> <num_threads>
+$ ./project1_9
+Usage: ./project1_9 <input_file> <output_file> <num_threads>
 
 # Error: invalid number of threads
-$ ./Q9ThreadCompress input.txt out.txt 0
+$ ./project1_9 input.txt out.txt 0
 Number of threads must be positive
 
 # Error: nonexistent input file
-$ ./Q9ThreadCompress nofile.txt out.txt 4
+$ ./project1_9 nofile.txt out.txt 4
 Failed to open input file: No such file or directory
 
 # OK: small input file, 2 threads
@@ -105,7 +101,7 @@ $ cat > small.txt <<'EOF'
 111100001111 0000111100001111
 EOF
 
-$ ./Q9ThreadCompress small.txt compressed_small.txt 2
+$ ./project1_9 small.txt compressed_small.txt 2
 Processing done.
 
 $ cat compressed_small.txt
@@ -116,7 +112,7 @@ $ cat > longruns.txt <<'EOF'
 0000000000000000 11111111111111111111
 EOF
 
-$ ./Q9ThreadCompress longruns.txt compressed_long.txt 4
+$ ./project1_9 longruns.txt compressed_long.txt 4
 Processing done.
 
 $ cat compressed_long.txt
