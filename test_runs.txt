@@ -1,0 +1,118 @@
+=====================================
+TYPESCRIPT: Test Run for All Programs
+=====================================
+
+$ gcc MyCompress.c -o MyCompress
+$ gcc MyDecompress.c -o MyDecompress
+$ gcc PipeCompress.c -o PipeCompress
+$ gcc MiniShell.c -o MiniShell
+$ gcc MoreShell.c -o MoreShell
+$ gcc DupShell.c -o DupShell
+
+# --------------------------------------------------
+# Prepare small input files
+# --------------------------------------------------
+$ cat > in1.txt <<'EOF'
+111100001111 0000111100001111
+EOF
+
+$ cat > in2.txt <<'EOF'
+0000000000000000 11111111111111111111
+EOF
+
+$ cat > in3.txt <<'EOF'
+1111111111111111x000000000000000000000
+EOF
+
+# ==================================================
+# MyCompress — correct behavior and error handling
+# ==================================================
+
+# Error: missing arguments
+$ ./MyCompress
+Usage: ./MyCompress <source> <dest>
+
+# Error: nonexistent input file
+$ ./MyCompress no_such.txt out.txt
+open src: No such file or directory
+
+# OK: small file with only short runs (no compression expected)
+$ ./MyCompress in1.txt out1.txt && cat out1.txt
+111100001111 0000111100001111
+
+# OK: long runs compress to +N+ / -N-
+$ ./MyCompress in2.txt out2.txt && cat out2.txt
+-16- +20+
+
+# OK: delimiters and non-bits pass through
+$ ./MyCompress in3.txt out3.txt && cat out3.txt
++16+x-21-
+
+# ==================================================
+# MyDecompress — correct behavior and error handling
+# ==================================================
+
+# Error: missing arguments
+$ ./MyDecompress
+Usage: ./MyDecompress <compressed_in> <decompressed_out>
+
+# Round trip: compress then decompress equals original
+$ ./MyCompress in2.txt c2.txt && ./MyDecompress c2.txt round2.txt && diff -u in2.txt round2.txt || true
+# (no output from diff means files are identical)
+
+# Malformed token is passed through literally
+$ printf '+12x\n' > badtoken.txt
+$ ./MyDecompress badtoken.txt pass.txt && cat pass.txt
++12x
+
+# ==================================================
+# PipeCompress — two-process IPC version
+# ==================================================
+
+# Error: missing arguments
+$ ./PipeCompress
+Usage: ./PipeCompress <source_file> <dest_file>
+
+# OK: compress via pipe
+$ ./PipeCompress in2.txt pipe_out.txt && cat pipe_out.txt
+-16- +20+
+
+# ==================================================
+# MiniShell — argument-less commands
+# ==================================================
+
+$ ./MiniShell
+MiniShell> echo
+MiniShell> ls -l
+Arguments are not supported (attempted: ls -l)
+MiniShell> nosuchcmd
+exec failed: No such file or directory
+MiniShell> exit
+
+# ==================================================
+# MoreShell — with arguments and quoting
+# ==================================================
+
+$ ./MoreShell
+MoreShell> /usr/bin/printf "hello world\n"
+hello world
+MoreShell> /usr/bin/printf "a b c\n"
+a b c
+MoreShell> nosuchcmd
+exec failed: No such file or directory
+MoreShell> exit
+
+# ==================================================
+# DupShell — pipelines via dup2
+# ==================================================
+
+$ ./DupShell
+DupShell> /usr/bin/printf "a\nb\nc\n" | wc -l
+3
+DupShell> /usr/bin/printf "hello world\n" | tr a-z A-Z
+HELLO WORLD
+DupShell> | wc -l
+syntax error: empty command near '|'
+DupShell> exit
+
+# End of typescript
